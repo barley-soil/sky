@@ -4,10 +4,10 @@
 FILE_NAME=""
 
 # 全局变量: 输出文件目录
-OUTPUT_SS_FILE="./test.txt"
+OUTPUT_SS_FILE="/etc/nginx/subscribe/default.txt"
 
 # 全局变量: 输出文件目录
-OUTPUT_CLASH_FILE="./test.yaml"
+OUTPUT_CLASH_FILE="/etc/nginx/subscribe/clash.yaml"
 
 echo "======================================================"
 echo "    AWK 订阅文件转换工具 (高效率版)"
