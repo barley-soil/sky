@@ -90,7 +90,12 @@ echo "正在生成配置文件 ..."
     command | getline base64_output
     close(command)
 
-    printf "ss://%s#%s\n", base64_output, f1
+    input_str = $1;
+    command = "printf %s " input_str " | jq -sRr @uri";
+    command | getline encoded_str;
+    close(command)
+
+    printf "ss://%s#%s\n", base64_output, encoded_str
 }
 ' "$FILE_NAME"
 ) >"$OUTPUT_SS_FILE"
