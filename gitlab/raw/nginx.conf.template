@@ -1,0 +1,56 @@
+# NJS 模块导入
+load_module modules/ngx_http_js_module.so;
+
+user  nginx;
+worker_processes  auto;
+
+# 日志屏幕打印
+error_log /dev/stderr info;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    # NJS
+    js_import main from /etc/nginx/njs/main.js;
+
+    # DNS
+    resolver 223.5.5.5 8.8.8.8 valid=30s;
+
+    server {
+        listen 80;
+        server_name  _;
+
+        # 关闭代理缓冲以避免将数据写入临时文件
+        proxy_buffering off;
+
+        # Proxy
+        location / {
+            js_content main.file_content;
+        }
+
+
+        # Gitlab 文件服务器
+        location /api/v4/files {
+            # 禁止外部访问
+            internal;
+
+            # GITLAB URL
+            set $api_path "/api/v4/projects/$arg_file_id/repository/files/$arg_file_path/raw?ref=$arg_file_ref";
+
+            # GITLAB 服务器
+            proxy_pass https://gitlab.liexiong.net$api_path;
+            proxy_set_header Host gitlab.liexiong.net;
+
+            # 禁止 SSL 检查
+            proxy_ssl_verify off;
+
+            #  GITLAB 令牌
+            proxy_set_header Private-Token ${GITLAB_TOKEN};
+        }
+    }
+}
