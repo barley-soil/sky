@@ -2,12 +2,17 @@
 
 # 源仓库地址|目标目录名
 PROJECTS=(
-  "git@gitlab.liexiong.net:common-base/rock/billbear-common-base.git|git@github.com:barley-rock/barley-common-base.git"
-  "git@gitlab.liexiong.net:common-base/rock/billbear-common-rock.git|git@github.com:barley-rock/barley-common-rock.git"
-  "git@gitlab.liexiong.net:common-base/rock/billbear-common-flink.git|git@github.com:barley-rock/barley-common-flink.git"
-  "git@gitlab.liexiong.net:common-base/rock/beer-assembly.git|git@github.com:barley-rock/beer-assembly.git"
-  "git@gitlab.liexiong.net:common-base/rock/beer-assembly-biz.git|git@github.com:barley-rock/beer-assembly-biz.git"
-  "git@gitlab.liexiong.net:common-base/rock/beer-assembly-schema.git|git@github.com:barley-rock/beer-assembly-schema.git"
+  "git@gitlab.liexiong.net:common-base/f4/billbear-authcenter.git|git@github.com:barley-soil/barley-authcenter.git"
+  "git@gitlab.liexiong.net:common-base/f4/billbear-authcenter-thirdparty.git|git@github.com:barley-soil/barley-authcenter-thirdparty.git"
+  "git@gitlab.liexiong.net:common-base/f4/billbear-authcenter-web.git|git@github.com:barley-soil/barley-authcenter-web.git"
+  "git@gitlab.liexiong.net:common-base/f4/billbear-common-cashier.git|git@github.com:barley-soil/barley-common-cashier.git"
+  "git@gitlab.liexiong.net:common-base/f4/billbear-common-data-panel.git|git@github.com:barley-soil/barley-common-data-panel.git"
+  "git@gitlab.liexiong.net:common-base/f4/billbear-common-data-panel-web.git|git@github.com:barley-soil/barley-common-data-panel-web.git"
+  "git@gitlab.liexiong.net:common-base/f4/billbear-common-micro-web.git|git@github.com:barley-soil/barley-common-micro-web.git"
+  "git@gitlab.liexiong.net:common-base/f4/billbear-filecenter.git|git@github.com:barley-soil/barley-filecenter.git"
+  "git@gitlab.liexiong.net:common-base/f4/billbear-usercenter.git|git@github.com:barley-soil/barley-usercenter.git"
+  "git@gitlab.liexiong.net:common-base/f4/billbear-usercenter-web.git|git@github.com:barley-soil/barley-usercenter-web.git"
+  "git@gitlab.liexiong.net:common-base/f4/billbear-web-gateway.git|git@github.com:barley-soil/barley-web-gateway.git"
 )
 
 for item in "${PROJECTS[@]}"; do
@@ -47,7 +52,9 @@ for item in "${PROJECTS[@]}"; do
   echo "切换推送地址为：$target_repo"
   git remote set-url --push origin "$target_repo"
 
-  git add .
+  rm -f .git/index.lock
+  git checkout --orphan new-main
+  git add -A
   git commit -m "Convert code upgrade" || echo "Not commit files"
 
   echo "正在强制推送到新仓库..."
