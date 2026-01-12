@@ -4,7 +4,7 @@
 
 
 mkdir -p ./billbear/business-trip
-cd ./xxscloud/business-trip || {
+cd ./billbear/business-trip || {
   echo "Error: Cannot cd to ./billbear/business-trip"
   exit 1
 }
