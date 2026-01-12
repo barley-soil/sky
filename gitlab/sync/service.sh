@@ -29,7 +29,7 @@ for item in "${PROJECTS[@]}"; do
   fi
 
   echo "正在替换 billbear → barley ..."
-  git ls-files '*.txt' '*.md' '*.java' '*.xml' '*.properties' '*.yaml' '*.yml' | xargs sed -i 's/billbear/barley/g'
+  git ls-files '*.txt' '*.md' '*.java' '*.xml' '*.properties' '*.yaml' '*.yml' '*.factories' '*.Processor' | xargs sed -i 's/billbear/barley/g'
 
   echo "正在替换版本号 2.3.0-SNAPSHOT → 4.2.0-SNAPSHOT ..."
   git ls-files '*.md' '*.xml' '*.properties' '*.yaml' '*.yml' | xargs sed -i 's/2\.3\.0-SNAPSHOT/4.2.0-SNAPSHOT/g'
