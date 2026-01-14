@@ -18,12 +18,13 @@ function access(r) {
     const sign = r.args.sign;
 
     if (!timestamp || !nonce || !sign) {
-        r.return(403);
+        r.return(403, "Params ERROR");
         return;
     }
 
     const clientTimestamp = parseInt(timestamp);
     if (isNaN(clientTimestamp)) {
+        r.return(403, "Request Expired");
         return;
     }
     const now = Date.now();
