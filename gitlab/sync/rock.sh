@@ -64,5 +64,19 @@ for item in "${PROJECTS[@]}"; do
   echo ""
 done
 
+
+# find . -type d -name ".git" | while read -r gitdir; do
+#     repo=$(dirname "$gitdir")
+#     cd "$repo" || continue
+    
+#     remote="origin/main"  # ← 修改这里
+    
+#     echo "强制同步 → $repo"
+#     git fetch --all
+#     git reset --hard "$remote"
+    
+#     cd - >/dev/null
+# done
+
 #  echo "预览包含 billbear 的文件: "
 #  git grep -l 'billbear' -- '*.txt' '*.java' '*.xml' '*.properties' '*.yaml' '*.yml' '*.md' || echo "未找到 billbear"
