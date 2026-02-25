@@ -82,4 +82,4 @@ done
 #  git grep -l 'billbear' -- '*.txt' '*.java' '*.xml' '*.properties' '*.yaml' '*.yml' '*.md' || echo "未找到 billbear"
 
 
-# git pull --force
+# git fetch origin && git reset --hard origin/main
