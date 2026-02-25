@@ -80,3 +80,6 @@ done
 
 #  echo "预览包含 billbear 的文件: "
 #  git grep -l 'billbear' -- '*.txt' '*.java' '*.xml' '*.properties' '*.yaml' '*.yml' '*.md' || echo "未找到 billbear"
+
+
+# git pull --force
