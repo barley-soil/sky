@@ -1,0 +1,28 @@
+FROM debian:oldstable-slim
+
+RUN apt-get update && \
+    apt-get install -y locales cron curl bzip2 && \
+    sed -i 's/# zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/' /etc/locale.gen && \
+    locale-gen && \
+    update-locale LANG=zh_CN.UTF-8
+
+ENV LANG=zh_CN.UTF-8 \
+    LANGUAGE=zh_CN:zh \
+    LC_ALL=zh_CN.UTF-8
+
+COPY backup.sh /data/backup.sh
+
+RUN chmod +x /data/backup.sh && \
+    echo "0 3 * * * /data/backup.sh >> /var/log/cron.log 2>&1" > /etc/cron.d/backup && \
+    chmod 0644 /etc/cron.d/backup && \
+    crontab /etc/cron.d/backup
+
+# 安装 restic 0.18.1
+RUN curl -L https://github.com/restic/restic/releases/download/v0.18.1/restic_0.18.1_linux_amd64.bz2 \
+    -o /tmp/restic.bz2 && \
+    bunzip2 /tmp/restic.bz2 && \
+    mv /tmp/restic /usr/local/bin/restic && \
+    chmod +x /usr/local/bin/restic
+
+
+CMD ["cron", "-f"]
