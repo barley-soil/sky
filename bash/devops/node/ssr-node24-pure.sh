@@ -105,6 +105,9 @@ docker run --rm \
   sh -c "cd /code && ${P_PACKAGE_BEFORE:-echo ''} && npm config set registry https://registry.npmmirror.com/ && pnpm config set dangerouslyAllowAllBuilds true && ${P_BUILD_CMD:-npm} install --no-frozen-lockfile && ${P_BUILD_CMD:-npm} run build && ${P_PACKAGE_AFTER:-echo ''}"
 
 
+echo "Remove .dockerIgnore file .."
+rm -rf ./.dockerignore
+
 # Dockerfile
 BUILD_TIME=$(date "+%Y_%m_%d_%H_%M_%S")
 BUILD_APPLICATION_NAME="$CI_PROJECT_NAME"
@@ -117,6 +120,7 @@ ENV BUILD_TIME __BUILD_TIME__
 ENV APPLICATION_NAME __APPLICATION_NAME__
 ENV COMMIT_ID __COMMIT_ID__
 ADD ./__OUTPUT__ /app
+ADD ./node_modules /code/node_modules
 WORKDIR /app
 CMD ["npm", "start"]
 EOF
