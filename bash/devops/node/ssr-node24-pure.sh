@@ -120,7 +120,6 @@ ENV BUILD_TIME __BUILD_TIME__
 ENV APPLICATION_NAME __APPLICATION_NAME__
 ENV COMMIT_ID __COMMIT_ID__
 ADD ./__OUTPUT__ /app
-ADD ./node_modules /code/node_modules
 WORKDIR /app
 CMD ["npm", "start"]
 EOF
