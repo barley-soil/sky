@@ -1,0 +1,146 @@
+####################################
+# 描述: 基于消息模板生成企业微信消息并推送.
+# 功能:
+#   - 基于模板消息构建.
+#   - 支持Gitlab CI 的构建变量.
+#   - 支持环境变量.
+# 依赖:
+#  - curl
+# 作者: 丁坤
+# 邮箱: dingk@billbear.cn
+# 时间: 2024-05-31
+# 版本: 1.0.1
+####################################
+
+set -e
+
+# 环境变量服务地址
+SERVER=10.10.2.3:8080
+# 环境变了服务器 令牌
+SERVER_TOKEN=54e23552b007adf95506be46ee25defb
+
+# 文本内容转义函数
+function escape() {
+    if [ -z "$1" ]; then
+        echo ""
+    else
+        echo "$1" | sed -e 's/\*//g' -e 's/> //g' -e 's/\n/ /g' -e 's/<br\/>/\n/g' -e 's/%/ /g' | tr '\n' ' '
+    fi
+}
+
+# 获取环境变量
+function env() {
+    if [ -z "$1" ]; then
+        echo ""
+    else
+        data=$(curl $SERVER/pair/$(echo "$1" | tr '[:lower:]' '[:upper:]')?token=$SERVER_TOKEN | jq .data.value)
+        echo "${data:1:${#data}-2}"
+    fi
+}
+
+STATUS=$1
+MESSAGE=$2
+
+if [ -z "$1" ]; then
+    echo "Error: Argument not provided. Exiting."
+    exit 1
+fi
+
+if [ -z "$2" ]; then
+    echo "Error: Argument not provided. Exiting."
+    exit 1
+fi
+
+# 加载Args 动态参数
+for arg in "${@:3}"; do
+    echo "$arg"
+    eval "$arg"
+done
+
+ROBOT=$(env "GL_MESSAGE_CP_WECHAT_ROBOT")
+
+# shellcheck disable=SC2034
+if [ "$STATUS" = "true" ]; then
+    title='<font color="info">构建成功</font>'
+else
+    title='<font color="warning">构建失败</font>'
+fi
+
+# shellcheck disable=SC2034
+if [ "$STATUS" = "true" ]; then
+    failReason=''
+else
+    failReason="\r\n> **失败原因**：[点击查看失败详情](${CI_JOB_URL}) ${MESSAGE}"
+fi
+
+# shellcheck disable=SC2034
+projectName="$P_PROJECT_NAME"
+# shellcheck disable=SC2034
+author="$CI_COMMIT_AUTHOR"
+
+env_value=$(echo "$P_COLONY_ENV" | tr '[:lower:]' '[:upper:]')
+# 如果 P_COLONY_ENV 变量不存在，则尝试使用 colonyEnv
+if [ -z "$env_value" ]; then
+    env_value=$(echo "$colonyEnv" | tr '[:lower:]' '[:upper:]')
+fi
+case $(echo "$env_value" | tr '[:lower:]' '[:upper:]') in
+"DEV")
+    env="开发环境"
+    ;;
+"TEST")
+    env="测试环境"
+    ;;
+"PREV")
+    env="预发布环境"
+    ;;
+"PROD")
+    env="生产环境"
+    ;;
+*)
+    # 如果 $env_value 为空，则设置 env 为 "未知环境"，否则设置为 $env_value
+    if [ -z "$env_value" ]; then
+        env="未知环境"
+    else
+        env="$env_value"
+    fi
+    ;;
+esac
+
+# shellcheck disable=SC2034
+commitRefName="$CI_COMMIT_REF_NAME"
+# shellcheck disable=SC2034
+description="$CI_COMMIT_MESSAGE"
+# shellcheck disable=SC2034
+commitId="$CI_COMMIT_SHA"
+# shellcheck disable=SC2034
+link="$CI_JOB_URL"
+
+# 所有变量
+CONTENT=$(env "GL_MESSAGE_CP_WECHAT_TEMPLATE")
+
+projectName=$(escape "${projectName}")
+author=$(escape "${author}")
+commitRefName=$(escape "${commitRefName}")
+description=$(escape "${description}")
+
+CONTENT=$(echo -n "$CONTENT" | sed "s%#{title}%${title}%g")
+CONTENT=$(echo -n "$CONTENT" | sed "s%#{failReason}%${failReason}%g")
+echo -e "projectName: ${projectName}"
+CONTENT=$(echo -n "$CONTENT" | sed "s%#{projectName}%${projectName}%g")
+echo -e "author: ${projectName}"
+CONTENT=$(echo -n "$CONTENT" | sed "s%#{author}%${author}%g")
+CONTENT=$(echo -n "$CONTENT" | sed "s%#{env}%${env}%g")
+echo -e "commitRefName: ${commitRefName}"
+CONTENT=$(echo -n "$CONTENT" | sed "s%#{commitRefName}%${commitRefName}%g")
+echo -e "description ${description}"
+CONTENT=$(echo -n "$CONTENT" | sed "s%#{description}%${description}%g")
+CONTENT=$(echo -n "$CONTENT" | sed "s%#{commitId}%${commitId}%g")
+CONTENT=$(echo -n "$CONTENT" | sed "s%#{link}%${link}%g")
+
+REQUEST='{"msgtype": "markdown", "markdown": { "content": "#{content}" }}'
+CONTENT=${CONTENT//"\""/"\\\""}
+REQUEST=${REQUEST//"#{content}"/"$CONTENT"}
+
+echo -e "$CONTENT"
+
+curl -X POST -H "Content-Type: application/json" -d "$REQUEST" "$ROBOT"

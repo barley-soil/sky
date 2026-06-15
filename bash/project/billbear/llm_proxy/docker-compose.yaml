@@ -1,0 +1,27 @@
+services:
+  gateway:
+    build:
+      context: gateway
+    container_name: gateway
+    restart: always
+  llm-proxy:
+    build:
+      context: llm_proxy
+    container_name: llm-proxy
+    restart: always
+  llm-proxy-web:
+    build:
+      context: llm_proxy_web
+    container_name: llm-proxy-web
+    restart: always
+    volumes:
+      - ./npm:/root/.npm
+  nginx:
+    image: billbear-cn-shanghai.cr.volces.com/base/nginx:1.30-alpine3.23
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
