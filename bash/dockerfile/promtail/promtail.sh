@@ -17,3 +17,9 @@ scrape_configs:
           region: ${APPLICATION_REGION:-shanghai}
           # 指定扫描的日志文件目录
           __path__: /logs/*.log" > /etc/promtail/config.yml
+
+    pipeline_stages:
+      - output:
+        source: message
+        # 250KB < 256KB
+        limit: 250000
