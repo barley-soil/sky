@@ -8,9 +8,6 @@ scrape_configs:
           rate: 100
           burst: 200
           max_line_size: 200000
-      - multiline:
-          max_lines: 10
-          max_wait_time: 3s
     static_configs:
       - targets:
           - localhost
