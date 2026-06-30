@@ -1,22 +1,19 @@
 echo "clients:
+  # Loki 服务的 URL
   - url: http://${LOKI_HOST-loki}:3100/loki/api/v1/push
 
 scrape_configs:
+  # 配置日志扫描和标签
   - job_name: logs
-    pipeline_stages:
-      - limit:
-          rate: 100
-          burst: 200
-          max_line_size: 200000
     static_configs:
+      # 可为空，Promtail 是从本地收集日志
       - targets:
           - localhost
         labels:
-          app: ${APPLICATION_NAME:-promtail}
+          app: ${APPLICATION_NAME:-promatail}
           env: ${APPLICATION_ENV:-prod}
-          system: ${APPLICATION_SYSTEM:-promtail}
+          system: ${APPLICATION_SYSTEM:-promatail}
           instance: ${APPLICATION_INSTANCE:-default}
           region: ${APPLICATION_REGION:-shanghai}
-          __path__: /logs/*.log
-
-" > /etc/promtail/config.yml
+          # 指定扫描的日志文件目录
+          __path__: /logs/*.log" > /etc/promtail/config.yml
